@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interactive Network Graph</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+      /* Use a font stack that includes system fonts and popular sans-serif fonts */
+    }
+  
+    #graph-container {
+      width: 100%;
+      height: 1000px;
+      border: 1px solid #ccc;
+    }
+  
+    .legend {
+      font-size: 14px;
+    }
+  
+    .legend-item {
+      margin-right: 10px;
+    }
+  
+    .node-label {
+      text-anchor: middle;
+      dominant-baseline: hanging;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+      /* Apply font stack to node labels */
+    }
+  
+    .node {
+      stroke: #fff;
+      stroke-width: 1.5px;
+    }
+  
+    .link {
+      stroke: #333;
+      stroke-opacity: 0.6;
+    }
+  
+    .node.active {
+      font-weight: bold; /* Make active nodes bold */
+    }
+  
+    .node.inactive,
+    .link.inactive {
+      opacity: 0.3; /* Make inactive nodes and links semi-transparent */
+    }
+  </style>  
+</head>
+<body>
+  <h1 style="text-align: center;">Sparrow Gen Framework</h1>
+  <div id="graph-container"></div>
+  <div id="legend-container" class="legend"></div>
+
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script>
+    // Load data from JSON
+    d3.json("activities2.json").then(function(data) {
+      const nodes = data.nodes;
+      const links = data.links;
+
+      // Set initial positions of nodes closer together
+      nodes.forEach((d, i) => {
+        d.x = Math.random() * 200 + 100;
+        d.y = Math.random() * 200 + 200;
+      });
+
+      // Create SVG container
+      const svg = d3.select("#graph-container")
+              .append("svg")
+              .attr("width", "100%")
+              .attr("height", "100%")
+              .attr("viewBox", [0, 0, 800, 600]) 
+              .call(d3.zoom()
+                .scaleExtent([1, 10]) // Define the zoom scale extent
+                .on("zoom", function(event) {
+                  svg.attr("transform", event.transform);
+                  toggleVisibility(event.transform.k); // Toggle label visibility based on zoom level
+                })
+              )
+              .on("click", unclicked) // Add unclick event listener
+              .append("g");
+
+    const colorScheme = {
+                "Activity Type Name": "#E5972A", // Blue
+                "Activity Name": "#F24822",      // Orange
+                "Excercise Name": "#0D99FF",     // Green
+                "Drill Name": "#0D99FF",         // Red
+                "Skill Name": "#9467bd"          // Purple
+                };
+
+      // Define color scale for node types
+      const colorScale = d3.scaleOrdinal()
+                          .domain(Object.keys(colorScheme))
+                          .range(Object.values(colorScheme));
+
+      // Create curved lines using Bézier curves
+      const linkPath = d3.linkHorizontal()
+                        .x(d => d.x)
+                        .y(d => d.y);
+
+      // Draw links as curved paths
+      const link = svg.selectAll(".link")
+                    .data(links)
+                    .enter().append("path")
+                    .attr("class", "link")
+                    .attr("stroke", "#999")
+                    .attr("stroke-width", 0.25)
+                    .attr("fill", "none")
+                    .attr("d", d => linkPath({source: d.source, target: d.target}));
+
+      // Create nodes
+      const node = svg.append("g")
+                      .selectAll("circle")
+                      .data(nodes)
+                      .enter().append("circle")
+                      .attr("r", d => Math.sqrt(d.size) * 1.5)
+                      .attr("fill", d => colorScale(d.type))
+                      .on("click", clicked) // Add click event listener
+                      .call(d3.drag()
+                        .on("start", dragstarted)
+                        .on("drag", dragged)
+                        .on("end", dragended));
+
+      // Add node labels with dynamic font size based on node degree and zoom level
+      const labels = svg.append("g")
+                        .selectAll("text")
+                        .data(nodes)
+                        .enter().append("text")
+                        .attr("class", "node-label")
+                        .attr("dy", d => Math.sqrt(d.size) * 1.5 + 10)
+                        .style("font-size", d => {
+                          if (d.type === "Activity Type Name") return "10px";
+                          if (d.type === "Activity Name") return "7px";
+                          if (d.type === "Excercise Name") return "4px";
+                          if (d.type === "Drill Name") return "4px";
+                          if (d.type === "Skill Name") return "4px";
+                        })
+                        .text(d => d.id)
+                        .style("visibility", "hidden"); // Initially hidden
+
+      // Create legend
+      const legendContainer = d3.select("#legend-container");
+      const legend = legendContainer.selectAll(".legend-item")
+                                    .data(colorScale.domain())
+                                    .enter().append("div")
+                                    .attr("class", "legend-item");
+      legend.append("span")
+            .style("background-color", colorScale)
+            .text(d => d);
+      legend.append("span")
+            .text(d => ` (${nodes.filter(node => node.type === d).length} nodes)`);
+
+      // Create force simulations
+      const simulation = d3.forceSimulation(nodes)
+                          .force("link", d3.forceLink(links).id(d => d.id).distance(100))
+                          .force("charge", d3.forceManyBody().strength(-15)) // Increase strength to bring nodes closer together
+                          .force("center", d3.forceCenter(400, 300))
+                          .force("collide", d3.forceCollide().radius(d => Math.sqrt(d.size) * 2 + 10).iterations(2)); // Adjust collide radius as needed
+
+      simulation.on("tick", () => {
+        node.attr("cx", d => d.x)
+            .attr("cy", d => d.y);
+
+        // Update the positions of curved links
+        link.attr("d", d => linkPath({source: d.source, target: d.target}));
+
+        // Update label positions
+        labels.attr("x", d => d.x)
+              .attr("y", d => d.y + Math.sqrt(d.size) / 2); // Adjust label position based on node size
+      });
+
+      
+
+      // Functions for drag behavior
+      function dragstarted(event) {
+        if (!event.active) simulation.alphaTarget(0.3).restart();
+        event.subject.fx = event.subject.x;
+        event.subject.fy = event.subject.y;
+      }
+
+      function dragged(event) {
+        event.subject.fx = event.x;
+        event.subject.fy = event.y;
+      }
+
+      function dragended(event) {
+        if (!event.active) simulation.alphaTarget(0);
+        event.subject.fx = null;
+        event.subject.fy = null;
+      }
+
+      // Function to handle mouse hover over nodes
+function mouseOver(event, d) {
+    // Highlight the hovered node
+    d3.select(this).attr("stroke", "black").attr("stroke-width", 2);
+}
+
+// Function to handle mouse out from nodes
+function mouseOut(event, d) {
+    // Remove the highlight from the node
+    d3.select(this).attr("stroke", null).attr("stroke-width", null);
+}
+
+function clicked(event, d) {
+  // Reset all nodes and links to normal state
+  node.style("opacity", 0.5).style("font-weight", "normal").style("stroke", "#ccc"); // Gray out non-selected nodes
+  link.style("stroke", "#ccc").style("stroke-width", 0.3);
+  labels.style("visibility", "hidden"); // Hide all labels by default
+
+  // Highlight clicked node
+  d3.select(this)
+    .style("opacity", 1) // Make selected node fully visible
+    .style("font-weight", "bold")
+    .style("stroke", "black")
+    .style("stroke-width", "2px");
+
+  // Show label of clicked node
+  labels.filter(label => label.id === d.id)
+    .style("visibility", "visible");
+
+  // Highlight neighboring nodes
+  const neighboringNodes = links.reduce((acc, link) => {
+    if (link.source.id === d.id) {
+      acc.push(link.target.id); // Include only target nodes' IDs
+    } else if (link.target.id === d.id) {
+      acc.push(link.source.id);
+    }
+    return acc;
+  }, []);
+
+  // Log neighboring node IDs for debugging
+  console.log("Neighboring node IDs:", neighboringNodes);
+
+  // Apply transformation to neighboring nodes
+  node.filter(node => neighboringNodes.includes(node.id))
+    .style("opacity", 1) // Make neighboring nodes fully visible
+    .style("font-weight", "bold")
+    .style("stroke", "black")
+    .style("stroke-width", "2px");
+
+  // Show labels for neighboring nodes
+  labels.filter(label => neighboringNodes.includes(label.id))
+    .style("visibility", "visible");
+
+  // Prevent event propagation
+  event.stopPropagation();
+}
+
+
+
+
+
+// Add event listener for click on nodes
+node.on("click", clicked);
+
+
+// Function to handle unclick event on the white space
+function unclicked(event) {
+  // Reset all nodes to normal state
+  node.style("opacity", 1).style("font-weight", "normal").style("stroke", "none");
+  link.style("stroke", "#333").style("stroke-width", 0.3);
+}
+
+// Add event listener for click on white space to unclick
+svg.on("click", unclicked);
+
+
+
+// Add event listeners for mouseover and mouseout
+node.on("mouseover", mouseOver).on("mouseout", mouseOut);
+
+
+      // Function to detect and prevent label overlap
+      function labelCollisionDetection(labels) {
+        const labelNodes = labels.nodes();
+        for (let i = 0; i < labelNodes.length; i++) {
+          for (let j = i + 1; j < labelNodes.length; j++) {
+            const label1 = labelNodes[i];
+            const label2 = labelNodes[j];
+            const bbox1 = label1.getBBox();
+            const bbox2 = label2.getBBox();
+            if (bboxOverlap(bbox1, bbox2)) {
+              const dx = (bbox2.x + bbox2.width / 2) - (bbox1.x + bbox1.width / 2);
+              const dy = (bbox2.y + bbox2.height / 2) - (bbox1.y + bbox1.height / 2);
+              const angle = Math.atan2(dy, dx);
+              const overlapDistance = Math.sqrt(dx * dx + dy * dy);
+              const moveX = Math.cos(angle) * overlapDistance;
+              const moveY = Math.sin(angle) * overlapDistance;
+              label1.setAttribute("x", parseFloat(label1.getAttribute("x")) - moveX);
+              label1.setAttribute("y", parseFloat(label1.getAttribute("y")) - moveY);
+            }
+          }
+        }
+      }
+
+      // Function to check if two bounding boxes overlap
+      function bboxOverlap(bbox1, bbox2) {
+        return bbox1.x < bbox2.x + bbox2.width &&
+               bbox1.x + bbox1.width > bbox2.x &&
+               bbox1.y < bbox2.y + bbox2.height &&
+               bbox1.y + bbox1.height > bbox2.y;
+      }
+
+      // Define boundary coordinates
+      const boundary = { xMin: 50, xMax: 750, yMin: 50, yMax: 550 };
+
+      // Create forceX and forceY to keep nodes within boundaries
+      const forceX = d3.forceX().x(d => Math.max(boundary.xMin, Math.min(boundary.xMax, d.x)));
+      const forceY = d3.forceY().y(d => Math.max(boundary.yMin, Math.min(boundary.yMax, d.y)));
+
+      // Add forceX and forceY to simulation
+      simulation.force("boundaryX", forceX);
+      simulation.force("boundaryY", forceY);
+
+      // Function to toggle label visibility based on zoom level
+function toggleVisibility(zoomLevel) {
+  labels.style("visibility", d => {
+    if (zoomLevel >= 1 && d.type === "Activity Category") {
+      return "visible";
+    } else if (zoomLevel >= 2 && d.type === "Activity Name X") {
+      return "visible";
+    } else if (zoomLevel >= 3 && d.type === "Skill Name") {
+      return "visible";
+    } else {
+      return "hidden";
+    }
+  });
+
+  // Toggle node visibility based on their size
+  node.style("visibility", d => {
+    return Math.sqrt(d.size) * zoomLevel > 1 ? "visible" : "hidden";
+  });
+}
+    });
+  </script>
+</body>
+</html>
