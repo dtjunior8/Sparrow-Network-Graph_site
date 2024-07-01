@@ -99,7 +99,7 @@
               .attr("height", "100%")
               .attr("viewBox", [0, 0, 800, 600]) 
               .call(d3.zoom()
-                .scaleExtent([1, 10]) // Define the zoom scale extent
+                .scaleExtent([0.5, 10]) // Define the zoom scale extent
                 .on("zoom", function(event) {
                   svg.attr("transform", event.transform);
                   toggleVisibility(event.transform.k); // Toggle label visibility based on zoom level
@@ -113,7 +113,11 @@
                 "Activity Name": "#F24822",      // Orange
                 "Excercise Name": "#0D99FF",     // Green
                 "Drill Name": "#0D99FF",         // Red
-                "Skill Name": "#9467bd"          // Purple
+                "Skill Name": "#9467bd",          // Purple
+                "Professional Name": "#AFF4C6",
+                "Equipment Name": "#FF00A8",
+                "Brand Name": "#BDE3FF",
+                "Rule Name": "#FFC7C2"
                 };
 
       // Define color scale for node types
@@ -162,6 +166,10 @@
                           if (d.type === "Excercise Name") return "4px";
                           if (d.type === "Drill Name") return "4px";
                           if (d.type === "Skill Name") return "4px";
+                          if (d.type === "Professional Name") return "4px";
+                          if (d.type === "Equipment Name") return "4px";
+                          if (d.type === "Brand Name") return "4px";
+                          if (d.type === "Rule Name") return "4px";
                         })
                         .text(d => d.id)
                         .style("visibility", "hidden"); // Initially hidden
