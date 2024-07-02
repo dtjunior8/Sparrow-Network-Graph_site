@@ -117,7 +117,8 @@
                 "Professional Name": "#AFF4C6",
                 "Equipment Name": "#FF00A8",
                 "Brand Name": "#BDE3FF",
-                "Rule Name": "#FFC7C2"
+                "Rule Name": "#FFC7C2",
+                "Excercise Type Name": "#9747FF"
                 };
 
       // Define color scale for node types
@@ -170,6 +171,7 @@
                           if (d.type === "Equipment Name") return "4px";
                           if (d.type === "Brand Name") return "4px";
                           if (d.type === "Rule Name") return "4px";
+                          if (d.type == "Excercise Type Name") return "4px";
                         })
                         .text(d => d.id)
                         .style("visibility", "hidden"); // Initially hidden
