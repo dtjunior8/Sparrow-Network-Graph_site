@@ -10,6 +10,16 @@
       src: url('SF-Pro-Display-Black.otf') format('opentype'); /* Path relative to your HTML file */
       /* You can add additional font formats for better browser compatibility */
     }
+
+    @font-face {
+      font-family: 'SFProDisplayMedium';
+      src: url('SF-Pro-Display-Medium.otf') format('opentype');
+    }
+
+    @font-face {
+      font-family: 'SFProRoundedRegular';
+      src: url('SF-Pro-Rounded-Regular.otf') format('opentype');
+    }
   
     body {
       font-family: 'SFPro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
@@ -184,39 +194,45 @@
                     .attr("d", d => linkPath({source: d.source, target: d.target}));
 
       // Create nodes
-      const node = svg.append("g")
-                      .selectAll("circle")
-                      .data(nodes)
-                      .enter().append("circle")
-                      .attr("r", d => Math.sqrt(d.size) * 1.5)
-                      .attr("fill", d => colorScale(d.type))
-                      .on("click", clicked) // Add click event listener
-                      .call(d3.drag()
-                        .on("start", dragstarted)
-                        .on("drag", dragged)
-                        .on("end", dragended));
+const node = svg.append("g")
+                .selectAll("circle")
+                .data(nodes)
+                .enter().append("circle")
+                .attr("r", d => Math.sqrt(d.size) * 1.5)
+                .attr("fill", d => colorScale(d.type))
+                .attr("class", d => {
+                  if (d.type === "Activity Type Name") return "node activity-type";
+                  else if (d.type === "Activity Name") return "node activity";
+                  else return "node other";
+                })
+                .on("click", clicked)
+                .call(d3.drag()
+                  .on("start", dragstarted)
+                  .on("drag", dragged)
+                  .on("end", dragended));
 
-      // Add node labels with dynamic font size based on node degree and zoom level
-      const labels = svg.append("g")
-                        .selectAll("text")
-                        .data(nodes)
-                        .enter().append("text")
-                        .attr("class", "node-label")
-                        .attr("dy", d => Math.sqrt(d.size) * 1.5 + 10)
-                        .style("font-size", d => {
-                          if (d.type === "Activity Type Name") return "10px";
-                          if (d.type === "Activity Name") return "7px";
-                          if (d.type === "Excercise Name") return "4px";
-                          if (d.type === "Drill Name") return "4px";
-                          if (d.type === "Skill Name") return "4px";
-                          if (d.type === "Professional Name") return "4px";
-                          if (d.type === "Equipment Name") return "4px";
-                          if (d.type === "Brand Name") return "4px";
-                          if (d.type === "Rule Name") return "4px";
-                          if (d.type === "Excercise Type Name") return "4px";
-                        })
-                        .text(d => d.id)
-                        .style("visibility", "hidden"); // Initially hidden
+// Add node labels with dynamic font size and family based on node type
+const labels = svg.append("g")
+                  .selectAll("text")
+                  .data(nodes)
+                  .enter().append("text")
+                  .attr("class", "node-label")
+                  .attr("dy", d => Math.sqrt(d.size) * 1.5 + 10)
+                  .style("font-size", d => {
+                    // Set font sizes here as needed
+                    // Example:
+                    if (d.type === "Activity Type Name") return "10px";
+                    else if (d.type === "Activity Name") return "7px";
+                    else return "4px";
+                  })
+                  .style("font-family", d => {
+                    // Set font families based on node types
+                    if (d.type === "Activity Type Name") return "'SFProDisplayMedium', sans-serif";
+                    else if (d.type === "Activity Name") return "'SFPro', sans-serif";
+                    else return "'SFProRoundedRegular', sans-serif";
+                  })
+                  .text(d => d.id)
+                  .style("visibility", "hidden"); // Initially hidden
 
       // Create legend
       const legendContainer = d3.select("#legend-container");
