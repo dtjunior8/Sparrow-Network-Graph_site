@@ -213,7 +213,7 @@
                           if (d.type === "Equipment Name") return "4px";
                           if (d.type === "Brand Name") return "4px";
                           if (d.type === "Rule Name") return "4px";
-                          if (d.type == "Excercise Type Name") return "4px";
+                          if (d.type === "Excercise Type Name") return "4px";
                         })
                         .text(d => d.id)
                         .style("visibility", "hidden"); // Initially hidden
@@ -395,11 +395,25 @@ node.on("mouseover", mouseOver).on("mouseout", mouseOut);
       // Function to toggle label visibility based on zoom level
 function toggleVisibility(zoomLevel) {
   labels.style("visibility", d => {
-    if (zoomLevel >= 1 && d.type === "Activity Category") {
+    if (zoomLevel >= 2 && d.type === "Activity Type Name") {
       return "visible";
-    } else if (zoomLevel >= 2 && d.type === "Activity Name X") {
+    } else if (zoomLevel >= 3 && d.type === "Activity Name") {
       return "visible";
-    } else if (zoomLevel >= 3 && d.type === "Skill Name") {
+    } else if (zoomLevel >= 4 && d.type === "Skill Name") {
+      return "visible";
+    } else if (zoomLevel >= 4 && d.type === "Excercise Name") {
+      return "visible";
+    } else if (zoomLevel >= 4 && d.type === "Drill Name") {
+      return "visible";
+    } else if (zoomLevel >= 4 && d.type === "Professional Name") {
+      return "visible";
+    } else if (zoomLevel >= 4 && d.type === "Equipment Name") {
+      return "visible"
+    } else if (zoomLevel >= 4 && d.type === "Brand Name") {
+      return "visible";
+    } else if (zoomLevel >= 4 && d.type === "Rule Name") {
+      return "visible";
+    } else if (zoomLevel >= 4 && d.type === "Excercise Type Name") {
       return "visible";
     } else {
       return "hidden";
