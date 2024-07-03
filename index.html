@@ -147,11 +147,9 @@
       // Create SVG container
       const svg = d3.select("#graph-container")
               .append("svg")
-              .attr("width", "100%")
-              .attr("height", "100%")
-              .attr("viewBox", [0, 0, 800, 600]) 
+              .attr("viewBox", "0, 0, 800, 600") 
               .call(d3.zoom()
-                .scaleExtent([0.5, 10]) // Define the zoom scale extent
+                .scaleExtent([0.1, 10]) // Define the zoom scale extent
                 .on("zoom", function(event) {
                   svg.attr("transform", event.transform);
                   toggleVisibility(event.transform.k); // Toggle label visibility based on zoom level
@@ -409,27 +407,20 @@ node.on("mouseover", mouseOver).on("mouseout", mouseOut);
       simulation.force("boundaryY", forceY);
 
       // Function to toggle label visibility based on zoom level
-function toggleVisibility(zoomLevel) {
+      function toggleVisibility(zoomLevel) {
   labels.style("visibility", d => {
-    if (zoomLevel >= 2 && d.type === "Activity Type Name") {
+    if (zoomLevel >= 1 && d.type === "Activity Type Name") {
       return "visible";
-    } else if (zoomLevel >= 3 && d.type === "Activity Name") {
-      return "visible";
-    } else if (zoomLevel >= 4 && d.type === "Skill Name") {
-      return "visible";
-    } else if (zoomLevel >= 4 && d.type === "Excercise Name") {
-      return "visible";
-    } else if (zoomLevel >= 4 && d.type === "Drill Name") {
-      return "visible";
-    } else if (zoomLevel >= 4 && d.type === "Professional Name") {
-      return "visible";
-    } else if (zoomLevel >= 4 && d.type === "Equipment Name") {
-      return "visible"
-    } else if (zoomLevel >= 4 && d.type === "Brand Name") {
-      return "visible";
-    } else if (zoomLevel >= 4 && d.type === "Rule Name") {
-      return "visible";
-    } else if (zoomLevel >= 4 && d.type === "Excercise Type Name") {
+    } else if (zoomLevel >= 0.25 && d.type === "Activity Name") {
+      return "visible"; // Adjusted zoom level here
+    } else if (zoomLevel >= 1.75 && (d.type === "Skill Name" || 
+                                  d.type === "Excercise Name" || 
+                                  d.type === "Drill Name" || 
+                                  d.type === "Professional Name" || 
+                                  d.type === "Equipment Name" || 
+                                  d.type === "Brand Name" || 
+                                  d.type === "Rule Name" || 
+                                  d.type === "Excercise Type Name")) {
       return "visible";
     } else {
       return "hidden";
