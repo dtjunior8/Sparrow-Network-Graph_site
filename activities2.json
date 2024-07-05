@@ -10,7 +10,7 @@
         {"id":"Music","size":20,"type":"Activity Type Name"},
         {"id":"Physical Therapy","size":10,"type":"Activity Type Name"},
         {"id":"Self Defense","size":10,"type":"Activity Type Name"},
-        {"id":"Sports","size":60,"type":"Activity Type Name"},
+        {"id":"Sports","size":25,"type":"Activity Type Name"},
         {"id":"Work Force","size":0,"type":"Activity Type Name"},
 
         {"id":"Archery","size":30,"type":"Activity Name"},

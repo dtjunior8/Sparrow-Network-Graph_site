@@ -85,7 +85,7 @@
   margin-top: 20px;
   position: fixed;
   top: 50px;
-  left: 50%;
+  left: 92%;
   transform: translateX(-50%);
   z-index: 10;
   width: 240px; /* Adjust width as needed */
@@ -287,6 +287,7 @@ const labels = svg.append("g")
                     else if (d.type === "Activity Name") return "'SFPro', sans-serif";
                     else return "'SFProRoundedRegular', sans-serif";
                   })
+                  .style("alignment-baseline", "middle") // Center align text vertically
                   .text(d => d.id)
                   .style("visibility", "hidden"); // Initially hidden
 
@@ -305,7 +306,7 @@ const labels = svg.append("g")
       // Create force simulations
       const simulation = d3.forceSimulation(nodes)
                           .force("link", d3.forceLink(links).id(d => d.id).distance(100))
-                          .force("charge", d3.forceManyBody().strength(-15)) // Increase strength to bring nodes closer together
+                          .force("charge", d3.forceManyBody().strength(-30)) // Increase strength to bring nodes closer together
                           .force("center", d3.forceCenter(400, 300))
                           .force("collide", d3.forceCollide().radius(d => Math.sqrt(d.size) * 2 + 10).iterations(2)); // Adjust collide radius as needed
 
@@ -392,7 +393,7 @@ function clicked(event, d) {
     .style("opacity", 1) // Make neighboring nodes fully visible
     .style("font-weight", "bold")
     .style("stroke", "black")
-    .style("stroke-width", "2px");
+    .style("stroke-width", "1.05px");
 
   // Show labels for neighboring nodes
   labels.filter(label => neighboringNodes.includes(label.id))
@@ -479,7 +480,7 @@ node.on("mouseover", mouseOver).on("mouseout", mouseOut);
       return "visible";
     } else if (zoomLevel >= 0.25 && d.type === "Activity Name") {
       return "visible"; // Adjusted zoom level here
-    } else if (zoomLevel >= 1.75 && (d.type === "Skill Name" || 
+    } else if (zoomLevel >= 1.65 && (d.type === "Skill Name" || 
                                   d.type === "Excercise Name" || 
                                   d.type === "Drill Name" || 
                                   d.type === "Professional Name" || 
