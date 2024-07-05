@@ -172,6 +172,8 @@
 
     let svg;
 
+    letclcikedActive = false;
+
 d3.json("activities2.json").then(function(data) {
     console.log("Data loaded:", data); // Check if data is loaded correctly
     nodes = data.nodes;
@@ -352,9 +354,12 @@ function mouseOut(event, d) {
 }
 
 function clicked(event, d) {
+
+  clickedActive = true;
+
     // Reset all nodes and links to normal state
-    node.style("opacity", 0.5).style("font-weight", "normal").style("stroke", "#ccc"); // Gray out non-selected nodes
-    link.style("stroke", "#ccc").style("stroke-width", 0.3);
+    node.style("opacity", 0.1).style("font-weight", "normal").style("stroke", "#ccc"); // Gray out non-selected nodes
+    link.style("stroke", "#ccc").style("stroke-width", 0.1);
     labels.style("visibility", "hidden"); // Hide all labels by default
 
     // Highlight clicked node
@@ -407,6 +412,9 @@ node.on("click", clicked);
 
 // Function to handle unclick event on the white space
 function unclicked(event) {
+
+  clickedActive = false;
+  
   // Reset all nodes to normal state
   node.style("opacity", 1).style("font-weight", "normal").style("stroke", "none");
   link.style("stroke", "#333").style("stroke-width", 0.3);
@@ -465,7 +473,8 @@ node.on("mouseover", mouseOver).on("mouseout", mouseOut);
 
       // Function to toggle label visibility based on zoom level
       function toggleVisibility(zoomLevel) {
-  labels.style("visibility", d => {
+        if (clickedActive == false){
+    labels.style("visibility", d => {
     if (zoomLevel >= 1 && d.type === "Activity Type Name") {
       return "visible";
     } else if (zoomLevel >= 0.25 && d.type === "Activity Name") {
@@ -484,6 +493,7 @@ node.on("mouseover", mouseOver).on("mouseout", mouseOut);
       return "hidden";
     }
   });
+}
 
   // Toggle node visibility based on their size
   node.style("visibility", d => {
