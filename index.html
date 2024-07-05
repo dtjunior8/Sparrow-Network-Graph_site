@@ -42,28 +42,35 @@
   
     h1 {
       text-align: center;
-      margin-top: 20px;
+      margin-top: 10px;
       font-family: 'SFPro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
       /* Apply 'SFPro' to headings as well */
     }
   
     #graph-container {
-    width: 100vw; /* Take up full viewport width */
-    height: 100vh; /* Take up full viewport height */
-    border: 1px solid #ccc; /* Optional border for visualization */
-    position: relative; /* Ensure proper positioning */
-    overflow: hidden; /* Hide overflow content */
-    z-index: 0; /* Set a lower z-index for the graph container */
-  }
+      width: 100vw;
+      height: calc(100vh - 100px); /* Adjusted height to leave space for the legend and title */
+      border: 1px solid #ccc;
+      position: relative;
+      overflow: hidden;
+      z-index: 0;
+    }
 
-  #legend-container {
-    background-color: #fff;
-    padding: 20px;
-    border: 1px solid #ccc;
-    text-align: center;
-    position: relative;
-    z-index: 1; /* Ensure legend is above graph */
-  }
+    #legend-container {
+      background-color: #fff;
+      padding: 20px;
+      border: 1px solid #ccc;
+      text-align: center;
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      z-index: 1;
+      max-width: 200px; /* Adjust width as needed */
+    }
+
+    .legend-item {
+      margin-bottom: 10px; /* Spacing between legend items */
+    }
 
   #show-legend {
     position: absolute;
@@ -72,7 +79,28 @@
     z-index: 2;
     cursor: pointer;
   }
-  
+
+  #search-container {
+  text-align: center;
+  margin-top: 20px;
+  position: fixed;
+  top: 50px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  width: 240px; /* Adjust width as needed */
+  background-color: #fff;
+  border: 1px solid #ccc;
+  padding: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#node-search {
+  padding: 8px;
+  width: 180px;
+  font-size: 14px;
+}
+
     .legend {
       position: absolute;
       font-size: 14px;
@@ -86,8 +114,9 @@
     }
   
     .legend-item {
-      display: inline-block;
-      margin-right: 10px;
+      font-size: 11px;
+      margin-right: 0px;
+
     }
   
     .node {
@@ -131,12 +160,38 @@
 
   <div id="graph-container"></div>
 
+  <div id="search-container">
+    <input type="text" id="node-search" placeholder="Search Node Name..." oninput="searchNode()">
+  </div>
+
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <script>
-    // Load data from JSON
-    d3.json("activities2.json").then(function(data) {
-      const nodes = data.nodes;
-      const links = data.links;
+
+    let nodes = [];
+    let links = [];
+
+    let svg;
+
+d3.json("activities2.json").then(function(data) {
+    console.log("Data loaded:", data); // Check if data is loaded correctly
+    nodes = data.nodes;
+    links = data.links;
+
+    // Check if 'nodes' and 'links' are properly loaded
+    if (nodes && nodes.length > 0) {
+        // Call any functions that rely on 'nodes' here, e.g., searchNode()
+        searchNode(); // Example of calling searchNode after data is loaded
+    } else {
+        console.log("Failed to load or empty 'nodes' array.");
+    }
+
+      // Ensure 'nodes' is populated correctly
+    if (nodes && nodes.length > 0) {
+        // Call any functions that rely on 'nodes' here, e.g., searchNode()
+        searchNode(); // Example of calling searchNode after data is loaded
+    } else {
+        console.log("Failed to load or empty 'nodes' array.");
+    }
 
       // Set initial positions of nodes closer together
       nodes.forEach((d, i) => {
@@ -145,7 +200,7 @@
       });
 
       // Create SVG container
-      const svg = d3.select("#graph-container")
+      svg = d3.select("#graph-container")
               .append("svg")
               .attr("viewBox", "0, 0, 800, 600") 
               .call(d3.zoom()
@@ -297,21 +352,22 @@ function mouseOut(event, d) {
 }
 
 function clicked(event, d) {
-  // Reset all nodes and links to normal state
-  node.style("opacity", 0.5).style("font-weight", "normal").style("stroke", "#ccc"); // Gray out non-selected nodes
-  link.style("stroke", "#ccc").style("stroke-width", 0.3);
-  labels.style("visibility", "hidden"); // Hide all labels by default
+    // Reset all nodes and links to normal state
+    node.style("opacity", 0.5).style("font-weight", "normal").style("stroke", "#ccc"); // Gray out non-selected nodes
+    link.style("stroke", "#ccc").style("stroke-width", 0.3);
+    labels.style("visibility", "hidden"); // Hide all labels by default
 
-  // Highlight clicked node
-  d3.select(this)
-    .style("opacity", 1) // Make selected node fully visible
-    .style("font-weight", "bold")
-    .style("stroke", "black")
-    .style("stroke-width", "2px");
+    // Highlight clicked node
+    d3.select(this)
+      .style("opacity", 1) // Make selected node fully visible
+      .style("font-weight", "bold")
+      .style("stroke", "black")
+      .style("stroke-width", "2px");
 
-  // Show label of clicked node
-  labels.filter(label => label.id === d.id)
-    .style("visibility", "visible");
+    // Show label of clicked node
+    labels.filter(label => label.id === d.id)
+      .style("visibility", "visible");
+
 
   // Highlight neighboring nodes
   const neighboringNodes = links.reduce((acc, link) => {
@@ -450,6 +506,35 @@ node.on("mouseover", mouseOver).on("mouseout", mouseOut);
       toggleButton.textContent = "Hide Legend";
     }
   }
+
+  function searchNode() {
+  const searchTerm = document.getElementById("node-search").value.trim().toLowerCase();
+  
+  // Check if nodes array is defined and not empty
+  if (nodes && nodes.length > 0) {
+    // Find the node by name
+    const foundNode = nodes.find(node => node.id.toLowerCase() === searchTerm);
+
+    // If node found, trigger click event on that node
+    if (foundNode) {
+      // Select the corresponding node element and trigger the 'clicked' function
+      const nodeElement = svg.selectAll(".node")
+                             .filter(d => d.id === foundNode.id);
+      if (!nodeElement.empty()) {
+        nodeElement.dispatch('click'); // Trigger the click event
+      } else {
+        console.log(`Node with id '${foundNode.id}' not found in the SVG.`);
+      }
+    } else {
+      console.log(`Node with id '${searchTerm}' not found.`);
+      // Handle case where node is not found (e.g., show message, clear selection)
+    }
+  } else {
+    console.log("Nodes array is empty or undefined.");
+    // Handle case where nodes array is empty or undefined
+  }
+}
+
   </script>
 </body>
 </html>
