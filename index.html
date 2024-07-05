@@ -168,7 +168,8 @@
                 "Equipment Name": "#FF00A8",
                 "Brand Name": "#BDE3FF",
                 "Rule Name": "#FFC7C2",
-                "Excercise Type Name": "#9747FF"
+                "Excercise Type Name": "#9747FF",
+                "Motion Name": "#FF00A8"
                 };
 
       // Define color scale for node types
@@ -420,7 +421,8 @@ node.on("mouseover", mouseOver).on("mouseout", mouseOut);
                                   d.type === "Equipment Name" || 
                                   d.type === "Brand Name" || 
                                   d.type === "Rule Name" || 
-                                  d.type === "Excercise Type Name")) {
+                                  d.type === "Excercise Type Name" ||
+                                  d.type === "Motion Name")) {
       return "visible";
     } else {
       return "hidden";
