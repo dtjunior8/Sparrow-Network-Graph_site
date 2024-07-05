@@ -302,25 +302,57 @@ const labels = svg.append("g")
             .text(d => d);
       legend.append("span")
             .text(d => ` (${nodes.filter(node => node.type === d).length} nodes)`);
+      
+            // Preprocess data: Sort nodes by type
+nodes.sort((a, b) => {
+  if (a.type < b.type) return -1;
+  if (a.type > b.type) return 1;
+  return 0;
+});
 
-      // Create force simulations
-      const simulation = d3.forceSimulation(nodes)
-                          .force("link", d3.forceLink(links).id(d => d.id).distance(100))
-                          .force("charge", d3.forceManyBody().strength(-30)) // Increase strength to bring nodes closer together
-                          .force("center", d3.forceCenter(400, 300))
-                          .force("collide", d3.forceCollide().radius(d => Math.sqrt(d.size) * 2 + 10).iterations(2)); // Adjust collide radius as needed
+// Arrange nodes based on their types around the Activity Name node
+const activityNode = nodes.find(node => node.type === "Activity Name");
+if (activityNode) {
+  const groupedNodes = {};
+  const angleStep = (2 * Math.PI) / nodes.length;
+  let radius = 100; // Initial radius from the Activity Name node
 
-      simulation.on("tick", () => {
-        node.attr("cx", d => d.x)
-            .attr("cy", d => d.y);
+  nodes.forEach((d, i) => {
+    if (!(d.type in groupedNodes)) {
+      groupedNodes[d.type] = [];
+    }
+    groupedNodes[d.type].push(d);
 
-        // Update the positions of curved links
-        link.attr("d", d => linkPath({source: d.source, target: d.target}));
+    const angle = i * angleStep;
+    d.x = activityNode.x + radius * Math.cos(angle);
+    d.y = activityNode.y + radius * Math.sin(angle);
 
-        // Update label positions
-        labels.attr("x", d => d.x)
-              .attr("y", d => d.y + Math.sqrt(d.size) / 2); // Adjust label position based on node size
-      });
+    // Increase radius slightly for the next group
+    if (i > 0 && d.type !== nodes[i - 1].type) {
+      radius += 50; // Adjust the distance between groups
+    }
+  });
+}
+
+// Initialize D3 force simulation
+const simulation = d3.forceSimulation(nodes)
+  .force("link", d3.forceLink(links).id(d => d.id).distance(100))
+  .force("charge", d3.forceManyBody().strength(-30))
+  .force("center", d3.forceCenter(400, 300))
+  .force("collide", d3.forceCollide().radius(d => Math.sqrt(d.size) * 2 + 10))
+  .on("tick", ticked);
+
+function ticked() {
+  // Update node and link positions
+  node.attr("cx", d => d.x)
+    .attr("cy", d => d.y);
+
+  link.attr("d", d => linkPath({ source: d.source, target: d.target }));
+
+  // Update label positions
+  labels.attr("x", d => d.x)
+    .attr("y", d => d.y + Math.sqrt(d.size) / 2);
+}
 
       
 
@@ -480,7 +512,7 @@ node.on("mouseover", mouseOver).on("mouseout", mouseOut);
       return "visible";
     } else if (zoomLevel >= 0.25 && d.type === "Activity Name") {
       return "visible"; // Adjusted zoom level here
-    } else if (zoomLevel >= 1.65 && (d.type === "Skill Name" || 
+    } else if (zoomLevel >= 1.45 && (d.type === "Skill Name" || 
                                   d.type === "Excercise Name" || 
                                   d.type === "Drill Name" || 
                                   d.type === "Professional Name" || 
