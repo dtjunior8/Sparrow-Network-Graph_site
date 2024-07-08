@@ -387,25 +387,28 @@ function mouseOut(event, d) {
 }
 
 function clicked(event, d) {
-
   clickedActive = true;
 
-    // Reset all nodes and links to normal state
-    node.style("opacity", 0.1).style("font-weight", "normal").style("stroke", "#ccc"); // Gray out non-selected nodes
-    link.style("stroke", "#ccc").style("stroke-width", 0.1);
-    labels.style("visibility", "hidden"); // Hide all labels by default
+  // Reset all nodes and links to normal state
+  node.style("opacity", 0.4).style("font-weight", "normal").style("stroke", "#ccc"); // Gray out non-selected nodes
+  link.style("stroke", "#ccc").style("stroke-width", 0.4);
+  labels.style("visibility", "hidden"); // Hide all labels by default
 
-    // Highlight clicked node
-    d3.select(this)
-      .style("opacity", 1) // Make selected node fully visible
-      .style("font-weight", "bold")
-      .style("stroke", "black")
-      .style("stroke-width", "2px");
+  // Highlight clicked node
+  d3.select(this)
+    .style("opacity", 1) // Make selected node fully visible
+    .style("font-weight", "bold")
+    .style("stroke", "black")
+    .style("stroke-width", "2px");
 
-    // Show label of clicked node
-    labels.filter(label => label.id === d.id)
-      .style("visibility", "visible");
+  // Show label of clicked node
+  labels.filter(label => label.id === d.id)
+    .style("visibility", "visible");
 
+  // Highlight links between clicked node and neighboring nodes
+  link.filter(link => link.source.id === d.id || link.target.id === d.id)
+    .style("stroke", "black")
+    .style("stroke-width", "0.34px");
 
   // Highlight neighboring nodes
   const neighboringNodes = links.reduce((acc, link) => {
@@ -417,8 +420,7 @@ function clicked(event, d) {
     return acc;
   }, []);
 
-  // Log neighboring node IDs for debugging
-  console.log("Neighboring node IDs:", neighboringNodes);
+  console.log(neighboringNodes);
 
   // Apply transformation to neighboring nodes
   node.filter(node => neighboringNodes.includes(node.id))
@@ -431,12 +433,55 @@ function clicked(event, d) {
   labels.filter(label => neighboringNodes.includes(label.id))
     .style("visibility", "visible");
 
+  // Display cluster labels for neighboring node types
+  const neighboringNodeTypes = new Set(neighboringNodes.map(nodeId => nodes.find(node => node.id === nodeId).type));
+
+  neighboringNodeTypes.forEach(type => {
+    const clusterNodes = nodes.filter(node => neighboringNodes.includes(node.id) && node.type === type);
+    if (clusterNodes.length > 0) {
+      // Calculate centroid of the cluster
+      const centroidX = d3.mean(clusterNodes, node => node.x);
+      const centroidY = d3.mean(clusterNodes, node => node.y);
+
+      // Determine label position adjustment based on node position
+    let labelOffsetX = 0;
+    if (centroidX > d.x) {
+      labelOffsetX = 130; // Label is to the right of the node
+    } else {
+      labelOffsetX = -130; // Label is to the left of the node
+    }
+
+      // Create or update label for the cluster
+      let clusterLabel = svg.select(`#cluster-label-${type.replace(/\s+/g, '-')}`);
+      if (clusterLabel.empty()) {
+        clusterLabel = svg.append("text")
+                          .attr("id", `cluster-label-${type.replace(/\s+/g, '-')}`)
+                          .attr("text-anchor", "middle")
+                          .attr("alignment-baseline", "middle")
+                          .text(type)
+                          .style("font-family", "'SFPro', sans-serif")
+                          .style("font-size", "12px")
+                          .style("font-weight", "bold")
+                          .style("pointer-events", "none")
+                          .style("visibility", "hidden"); // Initially hidden
+      }
+
+      // Set fill color based on type using colorScheme
+    clusterLabel.style("fill", colorScheme[type])
+            .style("stroke", "black") // Outline color
+            .style("stroke-width", "1px"); // Outline width
+
+
+      // Update label position near the centroid
+      clusterLabel.attr("x", centroidX + labelOffsetX)
+                  .attr("y", centroidY) // Adjust vertical offset as needed
+                  .style("visibility", "visible"); // Show the cluster label
+    }
+  });
+
   // Prevent event propagation
   event.stopPropagation();
 }
-
-
-
 
 
 // Add event listener for click on nodes
@@ -451,6 +496,9 @@ function unclicked(event) {
   // Reset all nodes to normal state
   node.style("opacity", 1).style("font-weight", "normal").style("stroke", "none");
   link.style("stroke", "#333").style("stroke-width", 0.3);
+  labels.style("visibility", "hidden");
+
+  svg.selectAll("[id^='cluster-label-']").style("visibility", "hidden");
 }
 
 // Add event listener for click on white space to unclick
