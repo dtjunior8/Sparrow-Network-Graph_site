@@ -512,7 +512,7 @@ node.on("mouseover", mouseOver).on("mouseout", mouseOut);
       return "visible";
     } else if (zoomLevel >= 0.25 && d.type === "Activity Name") {
       return "visible"; // Adjusted zoom level here
-    } else if (zoomLevel >= 1.45 && (d.type === "Skill Name" || 
+    } else if (zoomLevel >= 1.35 && (d.type === "Skill Name" || 
                                   d.type === "Excercise Name" || 
                                   d.type === "Drill Name" || 
                                   d.type === "Professional Name" || 
@@ -528,10 +528,6 @@ node.on("mouseover", mouseOver).on("mouseout", mouseOut);
   });
 }
 
-  // Toggle node visibility based on their size
-  node.style("visibility", d => {
-    return Math.sqrt(d.size) * zoomLevel > 1 ? "visible" : "hidden";
-  });
 }
     });
   
