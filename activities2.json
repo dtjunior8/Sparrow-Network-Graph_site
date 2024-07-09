@@ -980,7 +980,6 @@
 {"id":"Harp","size":4,"type":"Equipment Name"},
 {"id":"Harmonium","size":4,"type":"Equipment Name"},
 {"id":"Harmonica","size":4,"type":"Equipment Name"},
-{"id":"Handball","size":4,"type":"Equipment Name"},
 {"id":"Hand Wraps","size":4,"type":"Equipment Name"},
 {"id":"Guitar Tuner","size":4,"type":"Equipment Name"},
 {"id":"Guitar Strap","size":4,"type":"Equipment Name"},
@@ -1292,6 +1291,10 @@
 {"id":"Alo Yoga","size":3,"type":"Brand Name"},
 {"id":"Adidas","size":3,"type":"Brand Name"},
 {"id":"A&R","size":3,"type":"Brand Name"},
+{"id":"Marker","size":3,"type":"Brand Name"},
+{"id":"Bolle","size":3,"type":"Brand Name"},
+{"id":"The North Face","size":3,"type":"Brand Name"},
+{"id":"Hummel","size":3,"type":"Brand Name"},
 
 {"id":"Zlatan Ibrahimovic","size":5,"type":"Professional Name"},
 {"id":"Yuna Nishimura","size":5,"type":"Professional Name"},
@@ -1414,6 +1417,7 @@
 {"id":"Jin Young Ko","size":5,"type":"Professional Name"},
 {"id":"Jin Hee Im","size":5,"type":"Professional Name"},
 {"id":"Jimmy Page","size":5,"type":"Professional Name"},
+{"id":"Joe Perry","size":5,"type":"Professional Name"},
 {"id":"Jimi Hendrix","size":5,"type":"Professional Name"},
 {"id":"Jenny Shin","size":5,"type":"Professional Name"},
 {"id":"Jennifer Kupcho","size":5,"type":"Professional Name"},
@@ -1715,6 +1719,11 @@
 {"id":"3 outs to advance to next half inning","size":2,"type":"Rule Name"},
 {"id":"2 pt conversion = 2 points","size":2,"type":"Rule Name"},
 {"id":"2 halves of play","size":2,"type":"Rule Name"},
+{"id":"Score by throwing the ball into the opponent’s goal.","size":2,"type":"Rule Name"},
+{"id":"Hold the ball for up to 3 seconds, take up to 3 steps without dribbling.","size":2,"type":"Rule Name"},
+{"id":"Only the goalkeeper is allowed inside the goal area.","size":2,"type":"Rule Name"},
+{"id":"Unlimited and made at any time during the game.","size":2,"type":"Rule Name"},
+
 
 {"id":"Strength","size":4,"type":"Excercise Type Name"},
 {"id":"Speed","size":4,"type":"Excercise Type Name"},
@@ -1728,6 +1737,8 @@
 {"id":"Balance","size":4,"type":"Excercise Type Name"},
 {"id":"Agility","size":4,"type":"Excercise Type Name"},
 {"id":"Accuracy","size":4,"type":"Excercise Type Name"},
+{"id":"Mobility","size":4,"type":"Excercise Type Name"},
+
 
 {"id":"Two Dimensional Motion","size":4,"type":"Motion Name"},
 {"id":"Translational Motion","size":4,"type":"Motion Name"},
@@ -1763,7 +1774,18 @@
 {"id":"Circular Motion","size":4,"type":"Motion Name"},
 {"id":"Blend","size":4,"type":"Motion Name"},
 {"id":"Bend","size":4,"type":"Motion Name"},
-{"id":"Angular Motion","size":4,"type":"Motion Name"}
+{"id":"Angular Motion","size":4,"type":"Motion Name"},
+
+{"id":"Direct Correction","size":4,"type":"Methodology Name"},
+{"id":"Drills","size":4,"type":"Methodology Name"},
+{"id":"Imitation","size":4,"type":"Methodology Name"},
+{"id":"Motion Check","size":4,"type":"Methodology Name"},
+{"id":"Position Adjust","size":4,"type":"Methodology Name"},
+{"id":"First Trys","size":4,"type":"Methodology Name"},
+
+{"id":"Measurements","size":4,"type":"Analysis Name"},
+{"id":"Velocity","size":4,"type":"Analysis Name"},
+{"id":"Accuracy","size":4,"type":"Analysis Name"}
 
     ],
     "links": [
@@ -2912,6 +2934,10 @@
 {"source":"Sports","target":"Sherwood"},
 {"source":"Sports","target":"SG"},
 {"source":"Sports","target":"Scott"},
+{"source":"Sports","target":"Marker"},
+{"source":"Sports","target":"Bolle"},
+{"source":"Sports","target":"The North Face"},
+{"source":"Sports","target":"Hummel"},
 {"source":"Sports","target":"Schutt"},
 {"source":"Sports","target":"Santa Cruz"},
 {"source":"Sports","target":"Salomon"},
@@ -3561,6 +3587,12 @@
 {"source":"Yoga Blocks","target":"Lululemon"},
 {"source":"Yoga Mat","target":"Gaiam"},
 {"source":"Yoga Wheel","target":"Alo Yoga"},
+{"source":"Ski Bindings","target":"Marker"},
+{"source":"Goggle","target":"Bolle"},
+{"source":"Ski Bindings","target":"Marker"},
+{"source":"Ski Gloves","target":"The North Face"},
+{"source":"Handball","target":"Hummel"},
+{"source":"Goalkeeper Gloves","target":"Hummel"},
 
 {"source":"Golf","target":"Yuna Nishimura"},
 {"source":"Golf","target":"Yuka Saso"},
@@ -3679,6 +3711,7 @@
 {"source":"Guitar","target":"Joe Perry"},
 {"source":"Guitar","target":"Jimmy Page"},
 {"source":"Guitar","target":"Jimi Hendrix"},
+{"source":"Guitar","target":"Joe Perry"},
 {"source":"Guitar","target":"Jeff Beck"},
 {"source":"Guitar","target":"George Harrison"},
 {"source":"Guitar","target":"Gary Moore"},
@@ -3904,6 +3937,10 @@
 {"source":"Handball","target":"Only the goalkeeper is allowed inside the goal area."},
 {"source":"Handball","target":"Hold the ball for up to 3 seconds, take up to 3 steps without dribbling."},
 {"source":"Handball","target":"Each team has 7 players, including a goalkeeper."},
+{"source":"Handball","target":"Score by throwing the ball into the opponent’s goal."},
+{"source":"Handball","target":"Hold the ball for up to 3 seconds, take up to 3 steps without dribbling."},
+{"source":"Handball","target":"Unlimited and made at any time during the game."},
+{"source":"Handball","target":"Score when the entire ball crosses the goal line; free throws and penalty throws awarded for fouls."},
 {"source":"Ice Hockey","target":"Two-Line Pass - Passes that cross both the defending blue line and the center line are not allowed in some amateur and international versions of the game."},
 {"source":"Ice Hockey","target":"Puck Out of Play - Play is stopped if the puck goes out of the playing area or hits the net above the glass."},
 {"source":"Ice Hockey","target":"Penalties - Infractions like hooking, tripping, slashing, and high-sticking result in penalties, requiring the player to sit out of play for a set time."},

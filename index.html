@@ -226,7 +226,9 @@ d3.json("activities2.json").then(function(data) {
                 "Brand Name": "#BDE3FF",
                 "Rule Name": "#FFC7C2",
                 "Excercise Type Name": "#9747FF",
-                "Motion Name": "#FF00A8"
+                "Motion Name": "#FF00A8",
+                "Analysis Name": "#14AE5C",
+                "Methodology Name": "#E5972A" 
                 };
 
       // Define color scale for node types
@@ -428,6 +430,21 @@ function clicked(event, d) {
     .style("font-weight", "bold")
     .style("stroke", "black")
     .style("stroke-width", "1.05px");
+  
+
+  // Append a drop shadow filter to the SVG
+const filter = svg.append("filter")
+                  .attr("id", "drop-shadow")
+                  .attr("x", "-20%")
+                  .attr("y", "-20%")
+                  .attr("width", "140%")
+                  .attr("height", "140%");
+
+filter.append("feDropShadow")
+      .attr("dx", "1")
+      .attr("dy", "1")
+      .attr("stdDeviation", "1")
+      .attr("flood-color", "rgba(0, 0, 0, 0.5)");
 
   // Show labels for neighboring nodes
   labels.filter(label => neighboringNodes.includes(label.id))
@@ -468,8 +485,7 @@ function clicked(event, d) {
 
       // Set fill color based on type using colorScheme
     clusterLabel.style("fill", colorScheme[type])
-            .style("stroke", "black") // Outline color
-            .style("stroke-width", "1px"); // Outline width
+                .style("filter", "url(#drop-shadow)");
 
 
       // Update label position near the centroid
