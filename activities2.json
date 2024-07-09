@@ -662,14 +662,10 @@
 {"id":"Vertical Jumps","size":7,"type":"Skill Name"},
 {"id":"Vision","size":4,"type":"Skill Name"},
 {"id":"Upper and Lower Body Separation","size":4,"type":"Skill Name"},
-{"id":"Ukemi (Breakfalls)","size":4,"type":"Skill Name"},
-{"id":"Uchi Mata (Inner Thigh Throw)","size":4,"type":"Skill Name"},
 {"id":"Trigger Control","size":4,"type":"Skill Name"},
 {"id":"Throwing","size":4,"type":"Skill Name"},
 {"id":"the Spin","size":4,"type":"Skill Name"},
 {"id":"the Serve","size":4,"type":"Skill Name"},
-{"id":"Taisabaki (Body Movement)","size":4,"type":"Skill Name"},
-{"id":"Tai Otoshi (Body Drop Throw)","size":4,"type":"Skill Name"},
 {"id":"Tackling","size":4,"type":"Skill Name"},
 {"id":"Strong Swimmer","size":4,"type":"Skill Name"},
 {"id":"Straight Punch","size":4,"type":"Skill Name"},
@@ -4588,20 +4584,6 @@
 {"source":"Handball","target":"Dribbling"},
 {"source":"Handball","target":"Defense"},
 {"source":"Ice Hockey","target":"Forechecking"},
-{"source":"Judo","target":"Ukemi (Breakfalls)"},
-{"source":"Judo","target":"Uchi Mata (Inner Thigh Throw)"},
-{"source":"Judo","target":"Taisabaki (Body Movement)"},
-{"source":"Judo","target":"Tai Otoshi (Body Drop Throw)"},
-{"source":"Judo","target":"Shime-Waza (Chokes and Strangles)"},
-{"source":"Judo","target":"Seoi Nage (Shoulder Throw)"},
-{"source":"Judo","target":"Osaekomi-Waza (Pins)"},
-{"source":"Judo","target":"O Soto Gari (Major Outer Reap)"},
-{"source":"Judo","target":"Kumi-Kata (Grip Fighting)"},
-{"source":"Judo","target":"Koshi Guruma (Hip Wheel Throw)"},
-{"source":"Judo","target":"Kansetsu-Waza (Joint Locks)"},
-{"source":"Judo","target":"Harai Goshi (Sweeping Hip Throw)"},
-{"source":"Judo","target":"Escaping Holds"},
-{"source":"Judo","target":"Blocking Throws"},
 {"source":"Kinesiology","target":"Rehabilitation"},
 {"source":"Kinesiology","target":"Manual therapy"},
 {"source":"Kinesiology","target":"Joint Mobilization"},
@@ -4666,6 +4648,7 @@
 {"source":"Taekwondo","target":"Face Block"},
 {"source":"Taekwondo","target":"Double Forearm Block"},
 {"source":"Taekwondo","target":"Back Fists"}
+
 
     ]
 }
