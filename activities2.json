@@ -702,7 +702,6 @@
 {"id":"Low Block","size":4,"type":"Skill Name"},
 {"id":"Kumi-Kata (Grip Fighting)","size":4,"type":"Skill Name"},
 {"id":"Koshi Guruma (Hip Wheel Throw)","size":4,"type":"Skill Name"},
-{"id":"Knife Hand Strikes","size":4,"type":"Skill Name"},
 {"id":"Kansetsu-Waza (Joint Locks)","size":4,"type":"Skill Name"},
 {"id":"Jumping","size":4,"type":"Skill Name"},
 {"id":"Joint Mobilization","size":4,"type":"Skill Name"},
@@ -742,8 +741,6 @@
 {"id":"Ball-Control","size":4,"type":"Skill Name"},
 {"id":"Back Fists","size":4,"type":"Skill Name"},
 {"id":"Anatomical Knowledge","size":4,"type":"Skill Name"},
-{"id":"Agility","size":4,"type":"Skill Name"},
-{"id":"Active Release therapy","size":4,"type":"Skill Name"},
 
 
         {"id":"Zone Coverage Drills","size":4,"type":"Drill Name"},
@@ -4590,7 +4587,6 @@
 {"source":"Kinesiology","target":"Corrective Exercises"},
 {"source":"Kinesiology","target":"Biomechanics"},
 {"source":"Kinesiology","target":"Anatomical Knowledge"},
-{"source":"Kinesiology","target":"Active Release therapy"},
 {"source":"Rowing","target":"Pushing Against Boat"},
 {"source":"Rowing","target":"Pulling An Oar"},
 {"source":"Shooting","target":"Trigger Control"},
@@ -4647,8 +4643,8 @@
 {"source":"Taekwondo","target":"Front Kick"},
 {"source":"Taekwondo","target":"Face Block"},
 {"source":"Taekwondo","target":"Double Forearm Block"},
-{"source":"Taekwondo","target":"Back Fists"}
+{"source":"Taekwondo","target":"Back Fists"},
 
-
+{"source":"Self Defense","target":"Self Defense"}
     ]
 }
