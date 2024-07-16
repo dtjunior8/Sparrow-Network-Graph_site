@@ -172,22 +172,22 @@
 
     let svg;
 
-    letclcikedActive = false;
-  
+    let clickedActive = false;
+
     const circleLayouts = {
-      "Activity Type Name": {center: [-800, 200], radius: 40},
-      "Activity Name": {center: [-500, 200], radius: 40},
-      "Excercise Name": {center: [-300, 200], radius: 100},
-      "Drill Name": {center: [850, 200], radius: 80},
-      "Skill Name": {center: [500, 200], radius: 40},
-      "Professional Name": {center: [600, 200], radius: 40},
-      "Equipment Name":{center: [700, 200], radius: 40},
-      "Brand Name": {center: [750, 200], radius: 40},
-      "Rule Name": {center: [200, -150], radius: 40},
-      "Excercise Type Name": {center: [200, -300], radius: 40},
-      "Motion Name": {center: [200, 150], radius: 40},
-      "Analysis Name": {center: [200, 250], radius: 40},
-      "Methodology Name": {center: [200, 300], radius: 40},
+      "Activity Type Name": {center: [-275, -160], radius: 50},
+      "Activity Name": {center: [-100, -150], radius: 100},
+      "Excercise Name": {center: [200, -70], radius: 50},
+      "Drill Name": {center: [350, 200], radius: 100},
+      "Skill Name": {center: [-120, 50], radius: 50},
+      "Professional Name": {center: [150, -50], radius: 30},
+      "Equipment Name":{center: [300, 200], radius: 100},
+      "Brand Name": {center: [350, 200], radius: 100},
+      "Rule Name": {center: [100, -150], radius: 100},
+      "Excercise Type Name": {center: [200, -100], radius: 40},
+      "Motion Name": {center: [200, -20], radius: 100},
+      "Analysis Name": {center: [200, 250], radius: 100},
+      "Methodology Name": {center: [200, 300], radius: 100},
     }
 
 d3.json("activities2.json").then(function(data) {
@@ -195,16 +195,29 @@ d3.json("activities2.json").then(function(data) {
     nodes = data.nodes;
     links = data.links;
 
-    nodes.forEach(d => {
-      if (circleLayouts[d.type]) {
-    const layout = circleLayouts[d.type];
-    const index = nodes.filter(node => node.type === d.type).indexOf(d);
-    const angle = (index / nodes.filter(node => node.type === d.type).length) * 2 * Math.PI;
+    // Check if 'nodes' and 'links' are properly loaded
+    if (nodes && nodes.length > 0) {
+        // Call any functions that rely on 'nodes' here, e.g., searchNode()
+        searchNode(); // Example of calling searchNode after data is loaded
+    } else {
+        console.log("Failed to load or empty 'nodes' array.");
+    }
 
-    d.x = layout.center[0] + layout.radius * Math.cos(angle);
-    d.y = layout.center[1] + layout.radius * Math.sin(angle);
+    nodes.forEach(d => {
+      const layout = circleLayouts[d.type];
+  if (layout) {
+    const initialRadius = layout.radius * 0.2;
+    const angle = (nodes.filter(n => n.type === d.type).indexOf(d) / nodes.filter(n => n.type === d.type).length) * 2 * Math.PI;
+    d.x = layout.center[0] + initialRadius * Math.cos(angle);
+    d.y = layout.center[1] + initialRadius * Math.sin(angle);
   }
 });
+
+links.forEach(link => {
+    link.source = nodes.find(node => node.id === link.source);
+    link.target = nodes.find(node => node.id === link.target);
+});
+
 
       // Create SVG container
       svg = d3.select("#graph-container")
@@ -219,8 +232,6 @@ d3.json("activities2.json").then(function(data) {
               )
               .on("click", unclicked) // Add unclick event listener
               .append("g");
-    
-
 
     const colorScheme = {
                 "Activity Type Name": "#E5972A", // Blue
@@ -254,7 +265,7 @@ d3.json("activities2.json").then(function(data) {
                     .enter().append("path")
                     .attr("class", "link")
                     .attr("stroke", "#999")
-                    .attr("stroke-width", 0.1)
+                    .attr("stroke-width", 0.075)
                     .attr("fill", "none")
                     .attr("d", d => linkPath({source: d.source, target: d.target}));
 
@@ -319,23 +330,50 @@ nodes.sort((a, b) => {
   return 0;
 });
 
+// Create boundary checks during simulation
+const boundaryForce = (d) => {
+  const layout = circleLayouts[d.type];
+  if (layout) {
+    const dx = d.x - layout.center[0];
+    const dy = d.y - layout.center[1];
+    const distance = Math.sqrt(dx * dx + dy * dy);
+    
+    if (distance > layout.radius) {
+      const angle = Math.atan2(dy, dx);
+      d.x = layout.center[0] + layout.radius * Math.cos(angle);
+      d.y = layout.center[1] + layout.radius * Math.sin(angle);
+    }
+  }
+};
 
-// Initialize D3 force simulation
+
+// Update the simulation
 const simulation = d3.forceSimulation(nodes)
-  .force("link", d3.forceLink(links).id(d => d.id).distance(1600))
-  .force("charge", d3.forceManyBody().strength(0))
-  .force("collide", d3.forceCollide().radius(d => Math.sqrt(d.size)))
+  .force("link", d3.forceLink(links).id(d => d.id).distance(500))
+  .force("boundary", d3.forceRadial(
+    d => circleLayouts[d.type].radius, 
+    d => circleLayouts[d.type].center[0], 
+    d => circleLayouts[d.type].center[1]))
   .on("tick", ticked);
 
 function ticked() {
+  nodes.forEach(boundaryForce);
+  
   node.attr("cx", d => d.x)
-            .attr("cy", d => d.y);
-        link.attr("d", d => linkPath({ source: d.source, target: d.target }));
-        labels.attr("x", d => d.x)
-            .attr("y", d => d.y + Math.sqrt(d.size) / 2);
-}
+      .attr("cy", d => d.y);
 
-      
+      link.attr("d", d => {
+        if (d.source && d.target) {
+            return linkPath({ source: d.source, target: d.target });
+        } else {
+            console.warn('Link has undefined source or target:', d);
+            return ""; // or handle it appropriately
+        }
+    });
+
+  labels.attr("x", d => d.x)
+        .attr("y", d => d.y + 10);
+}
 
       // Functions for drag behavior
       function dragstarted(event) {
@@ -371,7 +409,7 @@ function clicked(event, d) {
   clickedActive = true;
 
   // Reset all nodes and links to normal state
-  node.style("opacity", 1).style("font-weight", "normal").style("stroke", "#ccc"); // Gray out non-selected nodes
+  node.style("opacity", 0.4).style("font-weight", "normal").style("stroke", "#ccc"); // Gray out non-selected nodes
   link.style("stroke", "#ccc").style("stroke-width", 0.075);
   labels.style("visibility", "hidden"); // Hide all labels by default
 
