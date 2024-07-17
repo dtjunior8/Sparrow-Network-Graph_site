@@ -170,25 +170,36 @@
     let nodes = [];
     let links = [];
 
-    let svg;
 
     let clickedActive = false;
 
     const circleLayouts = {
-      "Activity Type Name": {center: [-275, -160], radius: 50},
-      "Activity Name": {center: [-100, -150], radius: 100},
-      "Excercise Name": {center: [200, -70], radius: 50},
-      "Drill Name": {center: [350, 200], radius: 100},
-      "Skill Name": {center: [-120, 50], radius: 50},
-      "Professional Name": {center: [150, -50], radius: 30},
-      "Equipment Name":{center: [300, 200], radius: 100},
-      "Brand Name": {center: [350, 200], radius: 100},
-      "Rule Name": {center: [100, -150], radius: 100},
-      "Excercise Type Name": {center: [200, -100], radius: 40},
-      "Motion Name": {center: [200, -20], radius: 100},
-      "Analysis Name": {center: [200, 250], radius: 100},
-      "Methodology Name": {center: [200, 300], radius: 100},
+      "Activity Type Name": {center: [-700, -200], radius: 100},
+      "Activity Name": {center: [-400, -150], radius: 100},
+      "Excercise Name": {center: [200, 200], radius: 50},
+      "Drill Name": {center: [200, 200], radius: 100},
+      "Skill Name": {center: [-450, 300], radius: 275},
+      "Professional Name": {center: [400, -50], radius: 30},
+      "Equipment Name":{center: [-600, 0], radius: 100},
+      "Brand Name": {center: [450, 200], radius: 100},
+      "Rule Name": {center: [300, 0], radius: 100},
+      "Excercise Type Name": {center: [400, 350], radius: 40},
+      "Motion Name": {center: [250, 350], radius: 100},
+      "Analysis Name": {center: [0, -100], radius: 100},
+      "Methodology Name": {center: [-400, -400], radius: 100},
     }
+
+
+
+
+    function randomPositionInCircle(radius) {
+    const angle = Math.random() * 2 * Math.PI; // Random angle
+    const r = Math.random() * radius; // Random radius
+    return {
+        x: r * Math.cos(angle),
+        y: r * Math.sin(angle),
+    };
+}
 
 d3.json("activities2.json").then(function(data) {
     console.log("Data loaded:", data); // Check if data is loaded correctly
@@ -204,14 +215,29 @@ d3.json("activities2.json").then(function(data) {
     }
 
     nodes.forEach(d => {
-      const layout = circleLayouts[d.type];
-  if (layout) {
-    const initialRadius = layout.radius * 0.2;
-    const angle = (nodes.filter(n => n.type === d.type).indexOf(d) / nodes.filter(n => n.type === d.type).length) * 2 * Math.PI;
-    d.x = layout.center[0] + initialRadius * Math.cos(angle);
-    d.y = layout.center[1] + initialRadius * Math.sin(angle);
+  const layout = circleLayouts[d.type];
+
+  // Calculate a random angle and radius within the circle layout
+  const angle = Math.random() * 2 * Math.PI; // Random angle between 0 and 2π
+  const radius = Math.sqrt(Math.random()) * (layout.radius * 0.5); // Random radius within half the circle radius
+  
+  // Calculate initial x and y coordinates based on angle and radius
+  d.x = layout.center[0] + radius * Math.cos(angle);
+  d.y = layout.center[1] + radius * Math.sin(angle);
+
+  // Ensure nodes stay within the circleLayout boundaries
+  const dx = d.x - layout.center[0];
+  const dy = d.y - layout.center[1];
+  const distance = Math.sqrt(dx * dx + dy * dy);
+
+  if (distance > layout.radius) {
+    // If node is outside the circle, move it back inside
+    const angleInside = Math.atan2(dy, dx);
+    d.x = layout.center[0] + layout.radius * Math.cos(angleInside);
+    d.y = layout.center[1] + layout.radius * Math.sin(angleInside);
   }
 });
+
 
 links.forEach(link => {
     link.source = nodes.find(node => node.id === link.source);
@@ -268,7 +294,6 @@ links.forEach(link => {
                     .attr("stroke-width", 0.075)
                     .attr("fill", "none")
                     .attr("d", d => linkPath({source: d.source, target: d.target}));
-
       // Create nodes
 const node = svg.append("g")
                 .selectAll("circle")
@@ -281,11 +306,6 @@ const node = svg.append("g")
                   else if (d.type === "Activity Name") return "node activity";
                   else return "node other";
                 })
-                .on("click", clicked)
-                .call(d3.drag()
-                  .on("start", dragstarted)
-                  .on("drag", dragged)
-                  .on("end", dragended));
 
 // Add node labels with dynamic font size and family based on node type
 const labels = svg.append("g")
@@ -346,14 +366,42 @@ const boundaryForce = (d) => {
   }
 };
 
+function forceTowardsCircleCenter(circleLayouts) {
+    function force(alpha) {
+        nodes.forEach(d => {
+            const layout = circleLayouts[d.type];
+            const dx = layout.center[0] - d.x;
+            const dy = layout.center[1] - d.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            const targetRadius = layout.radius * 0.5;
+
+            // Apply force only if the node is outside its target radius
+            if (distance > targetRadius) {
+                const strength = 100; // Adjust the strength as needed
+                d.vx += (dx / distance) * strength * alpha;
+                d.vy += (dy / distance) * strength * alpha;
+            }
+        });
+    }
+
+    return force;
+}
+
+// Define collision force with dynamic radius based on node type
+const collisionForce = d3.forceCollide()
+    .radius(function(d) {
+        if (d.type === "Activity Name") {
+            return 20; // Larger radius for "Activity Name" nodes
+        } else {
+            return 7; // Smaller radius for other types
+        }
+    })
+    .strength(0.7); 
 
 // Update the simulation
 const simulation = d3.forceSimulation(nodes)
-  .force("link", d3.forceLink(links).id(d => d.id).distance(500))
-  .force("boundary", d3.forceRadial(
-    d => circleLayouts[d.type].radius, 
-    d => circleLayouts[d.type].center[0], 
-    d => circleLayouts[d.type].center[1]))
+  .force('collide', collisionForce)
+  .force("towardsCenter", forceTowardsCircleCenter(circleLayouts))
   .on("tick", ticked);
 
 function ticked() {
@@ -374,25 +422,6 @@ function ticked() {
   labels.attr("x", d => d.x)
         .attr("y", d => d.y + 10);
 }
-
-      // Functions for drag behavior
-      function dragstarted(event) {
-        if (!event.active) simulation.alphaTarget(0.3).restart();
-        event.subject.fx = event.subject.x;
-        event.subject.fy = event.subject.y;
-      }
-
-      function dragged(event) {
-        event.subject.fx = event.x;
-        event.subject.fy = event.y;
-      }
-
-      function dragended(event) {
-        if (!event.active) simulation.alphaTarget(0);
-        event.subject.fx = null;
-        event.subject.fy = null;
-      }
-
       // Function to handle mouse hover over nodes
 function mouseOver(event, d) {
     // Highlight the hovered node
