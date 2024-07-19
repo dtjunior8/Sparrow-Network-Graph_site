@@ -176,17 +176,28 @@
     const circleLayouts = {
       "Activity Type Name": {center: [-700, -200], radius: 100},
       "Activity Name": {center: [-400, -150], radius: 100},
-      "Excercise Name": {center: [200, 200], radius: 50},
-      "Drill Name": {center: [200, 200], radius: 100},
+      "Excercise Name": {center: [200, 350], radius: 50},
+      "Drill Name": {center: [200, 180], radius: 100},
       "Skill Name": {center: [-450, 300], radius: 275},
-      "Professional Name": {center: [400, -50], radius: 30},
-      "Equipment Name":{center: [-600, 0], radius: 100},
+      "Professional Name": {center: [500, -50], radius: 100},
+      "Equipment Name":{center: [-700, 0], radius: 100},
       "Brand Name": {center: [450, 200], radius: 100},
       "Rule Name": {center: [300, 0], radius: 100},
       "Excercise Type Name": {center: [400, 350], radius: 40},
-      "Motion Name": {center: [250, 350], radius: 100},
-      "Analysis Name": {center: [0, -100], radius: 100},
-      "Methodology Name": {center: [-400, -400], radius: 100},
+      "Motion Name": {center: [250, 470], radius: 100},
+      "Analysis Name": {center: [-100, 200], radius: 100},
+      "Methodology Name": {center: [-400, -370], radius: 100},
+      "Coaching Style Name": {center: [150, -130], radius: 20},
+      "Device Name": {center: [-30, 50], radius: 30},
+      "Mode Name": {center: [70, 90], radius: 30},
+      "Perceptron Model Name": {center: [-200, 50], radius: 50},
+      "Sensor Name": {center: [-110, -100], radius: 50},
+      "User Analysis Name": {center: [-100, 300], radius: 50},
+      "User Condition": {center: [0, -100], radius: 50},
+      "User Expertise": {center: [50, -30], radius: 50},
+      "User Input Name": {center: [150, -50], radius: 50}
+
+
     }
 
 
@@ -260,19 +271,29 @@ links.forEach(link => {
               .append("g");
 
     const colorScheme = {
-                "Activity Type Name": "#E5972A", // Blue
-                "Activity Name": "#F24822",      // Orange
-                "Excercise Name": "#0D99FF",     // Green
-                "Drill Name": "#0D99FF",         // Red
+                "Activity Type Name": "#E5972A", // Orange
+                "Activity Name": "#F24822",      // Red
+                "Excercise Name": "#0D99FF",     // Blue
+                "Drill Name": "#598BAF",         // Air Force
                 "Skill Name": "#9467bd",          // Purple
-                "Professional Name": "#AFF4C6",
-                "Equipment Name": "#FF00A8",
-                "Brand Name": "#BDE3FF",
-                "Rule Name": "#FFC7C2",
-                "Excercise Type Name": "#9747FF",
-                "Motion Name": "#FF00A8",
+                "Professional Name": "#AFF4C6", // Light Green
+                "Equipment Name": "#FF00A8", // Pink
+                "Brand Name": "#BDE3FF", // Lightish Blue
+                "Rule Name": "#FFC7C2", // Skin 
+                "Excercise Type Name": "#9747FF", // Purple
+                "Motion Name": "#F64A8A", // French Rose
+                "Analysis Name": "#14AE5C", // Dark Green
+                "Methodology Name": "#FFFF00", // Yellow
                 "Analysis Name": "#14AE5C",
-                "Methodology Name": "#E5972A" 
+                "Coaching Style Name": "#32e88f", //Emerald Green
+                "Device Name": "#aa5158", //Umber?
+                "Mode Name": "#b30395", // Fuschia
+                "Perceptron Model Name": "#33e217", // Lime Green
+                "Sensor Name": "#7281b8", // Lavender
+                "User Analysis Name": "#c1e44a", //Gatorade Lime
+                "User Condition": "#609fce", //muted blue
+                "User Expertise": "#6f924f", // Military Green
+                "User Input Name": "#a40125" // Barn Red
                 };
 
       // Define color scale for node types
@@ -350,21 +371,39 @@ nodes.sort((a, b) => {
   return 0;
 });
 
-// Create boundary checks during simulation
-const boundaryForce = (d) => {
-  const layout = circleLayouts[d.type];
-  if (layout) {
-    const dx = d.x - layout.center[0];
-    const dy = d.y - layout.center[1];
-    const distance = Math.sqrt(dx * dx + dy * dy);
-    
-    if (distance > layout.radius) {
-      const angle = Math.atan2(dy, dx);
-      d.x = layout.center[0] + layout.radius * Math.cos(angle);
-      d.y = layout.center[1] + layout.radius * Math.sin(angle);
-    }
-  }
-};
+// Define filter for drop shadow
+const filter = svg.append("filter")
+  .attr("id", "drop-shadow")
+  .attr("x", "-20%")
+  .attr("y", "-20%")
+  .attr("width", "140%")
+  .attr("height", "140%");
+
+filter.append("feDropShadow")
+  .attr("dx", "2")
+  .attr("dy", "2")
+  .attr("stdDeviation", "2")
+  .attr("flood-color", "rgba(0, 0, 0, 0.5)");
+
+// Add cluster labels
+const clusterLabels = svg.selectAll(".cluster-label")
+  .data(Object.keys(circleLayouts))
+  .enter().append("text")
+  .attr("class", "cluster-label")
+  .attr("id", d => `cluster-label-${d.replace(/\s+/g, '-')}`) // ID for each label
+  .attr("x", d => circleLayouts[d].center[0])
+  .attr("y", d => circleLayouts[d].center[1] + 50) // Adjust position as needed
+  .text(d => d)
+  .style("font-family", "'SFPro', sans-serif") // Adjust font-family if needed
+  .style("font-size", "12px") // Adjust font-size as needed
+  .style("text-anchor", "middle")
+  .style("fill", "#333") // Adjust text color as needed
+  .style("visibility", "visible")
+  .style("fill", d => colorScheme[d])
+  .style("stroke", 2)
+  .style("filter", "url(#drop-shadow)");
+
+
 
 function forceTowardsCircleCenter(circleLayouts) {
     function force(alpha) {
@@ -405,7 +444,6 @@ const simulation = d3.forceSimulation(nodes)
   .on("tick", ticked);
 
 function ticked() {
-  nodes.forEach(boundaryForce);
   
   node.attr("cx", d => d.x)
       .attr("cy", d => d.y);
@@ -420,7 +458,7 @@ function ticked() {
     });
 
   labels.attr("x", d => d.x)
-        .attr("y", d => d.y + 10);
+        .attr("y", d => d.y + 5);
 }
       // Function to handle mouse hover over nodes
 function mouseOver(event, d) {
@@ -440,7 +478,8 @@ function clicked(event, d) {
   // Reset all nodes and links to normal state
   node.style("opacity", 0.4).style("font-weight", "normal").style("stroke", "#ccc"); // Gray out non-selected nodes
   link.style("stroke", "#ccc").style("stroke-width", 0.075);
-  labels.style("visibility", "hidden"); // Hide all labels by default
+  labels.style("visibility", "hidden") // Hide all labels by default
+  clusterLabels.style("visibility", "hidden");
 
   // Highlight clicked node
   d3.select(this)
@@ -496,50 +535,7 @@ filter.append("feDropShadow")
   labels.filter(label => neighboringNodes.includes(label.id))
     .style("visibility", "visible");
 
-  // Display cluster labels for neighboring node types
-  const neighboringNodeTypes = new Set(neighboringNodes.map(nodeId => nodes.find(node => node.id === nodeId).type));
-
-  neighboringNodeTypes.forEach(type => {
-    const clusterNodes = nodes.filter(node => neighboringNodes.includes(node.id) && node.type === type);
-    if (clusterNodes.length > 0) {
-      // Calculate centroid of the cluster
-      const centroidX = d3.mean(clusterNodes, node => node.x);
-      const centroidY = d3.mean(clusterNodes, node => node.y);
-
-      // Determine label position adjustment based on node position
-    let labelOffsetX = 0;
-    if (centroidX > d.x) {
-      labelOffsetX = 130; // Label is to the right of the node
-    } else {
-      labelOffsetX = -130; // Label is to the left of the node
-    }
-
-      // Create or update label for the cluster
-      let clusterLabel = svg.select(`#cluster-label-${type.replace(/\s+/g, '-')}`);
-      if (clusterLabel.empty()) {
-        clusterLabel = svg.append("text")
-                          .attr("id", `cluster-label-${type.replace(/\s+/g, '-')}`)
-                          .attr("text-anchor", "middle")
-                          .attr("alignment-baseline", "middle")
-                          .text(type)
-                          .style("font-family", "'SFPro', sans-serif")
-                          .style("font-size", "12px")
-                          .style("font-weight", "bold")
-                          .style("pointer-events", "none")
-                          .style("visibility", "hidden"); // Initially hidden
-      }
-
-      // Set fill color based on type using colorScheme
-    clusterLabel.style("fill", colorScheme[type])
-                .style("filter", "url(#drop-shadow)");
-
-
-      // Update label position near the centroid
-      clusterLabel.attr("x", centroidX + labelOffsetX)
-                  .attr("y", centroidY) // Adjust vertical offset as needed
-                  .style("visibility", "visible"); // Show the cluster label
-    }
-  });
+  
 
   // Prevent event propagation
   event.stopPropagation();
@@ -560,7 +556,7 @@ function unclicked(event) {
   link.style("stroke", "#333").style("stroke-width", 0.075);
   labels.style("visibility", "hidden");
 
-  svg.selectAll("[id^='cluster-label-']").style("visibility", "hidden");
+  clusterLabels.style("visibility", "visible");
 }
 
 // Add event listener for click on white space to unclick
@@ -622,21 +618,11 @@ node.on("mouseover", mouseOver).on("mouseout", mouseOut);
       return "visible";
     } else if (zoomLevel >= 0.25 && d.type === "Activity Name") {
       return "visible"; // Adjusted zoom level here
-    } else if (zoomLevel >= 1.35 && (d.type === "Skill Name" || 
-                                  d.type === "Excercise Name" || 
-                                  d.type === "Drill Name" || 
-                                  d.type === "Professional Name" || 
-                                  d.type === "Equipment Name" || 
-                                  d.type === "Brand Name" || 
-                                  d.type === "Rule Name" || 
-                                  d.type === "Excercise Type Name" ||
-                                  d.type === "Motion Name" ||
-                                  d.type === "Methodology Name" ||
-                                  d.type === "Analysis Name")) {
-      return "visible";
-    } else {
-      return "hidden";
-    }
+    } else if (zoomLevel >= 1.35) {
+        return "visible"; // Adjusted zoom level here
+      } else {
+        return "hidden";
+      }
   });
 }
 
