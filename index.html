@@ -174,13 +174,13 @@
     let clickedActive = false;
 
     const circleLayouts = {
-      "Activity Type Name": {center: [-400, -200], radius: 100},
-      "Activity Name": {center: [-150, -150], radius: 200},
+      "Activity Type Name": {center: [-770, -200], radius: 100},
+      "Activity Name": {center: [-350, -50], radius: 200},
       "Excercise Name": {center: [700, 700], radius: 150},
-      "Drill Name": {center: [650, 350], radius: 250},
-      "Skill Name": {center: [-450, 400], radius: 275},
+      "Drill Name": {center: [650, 350], radius: 350},
+      "Skill Name": {center: [-400, 600], radius: 500},
       "Professional Name": {center: [1200, -200], radius: 300},
-      "Equipment Name":{center: [-600, 100], radius: 100},
+      "Equipment Name":{center: [-800, 100], radius: 150},
       "Brand Name": {center: [950, 200], radius: 300},
       "Rule Name": {center: [650, -20], radius: 300},
       "Excercise Type Name": {center: [1000, 450], radius: 100},
@@ -193,7 +193,7 @@
       "Perceptron Model Name": {center: [300, 200], radius: 50},
       "Sensor Name": {center: [170, -100], radius: 50},
       "User Analysis Name": {center: [200, 300], radius: 50},
-      "User Condition": {center: [300, -200], radius: 100},
+      "User Condition": {center: [300, -300], radius: 120},
       "User Expertise": {center: [350, -30], radius: 50},
       "User Input Name": {center: [450, -50], radius: 50}
 
@@ -416,7 +416,7 @@ function forceTowardsCircleCenter(circleLayouts) {
 
             // Apply force only if the node is outside its target radius
             if (distance > targetRadius) {
-                const strength = 100; // Adjust the strength as needed
+                const strength = 200; // Adjust the strength as needed
                 d.vx += (dx / distance) * strength * alpha;
                 d.vy += (dy / distance) * strength * alpha;
             }
@@ -430,7 +430,7 @@ function forceTowardsCircleCenter(circleLayouts) {
 const collisionForce = d3.forceCollide()
     .radius(function(d) {
         if (d.type === "Activity Name") {
-            return 20; // Larger radius for "Activity Name" nodes
+            return 18; // Larger radius for "Activity Name" nodes
         } else {
             return 9; // Smaller radius for other types
         }
