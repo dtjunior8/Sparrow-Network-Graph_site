@@ -188,10 +188,10 @@
       "Analysis Name": {center: [-100, 200], radius: 100},
       "Methodology Name": {center: [-200, -400], radius: 100},
       "Coaching Style Name": {center: [450, -130], radius: 20},
-      "Device Name": {center: [270, 50], radius: 30},
-      "Mode Name": {center: [470, 90], radius: 30},
-      "Perceptron Model Name": {center: [300, 200], radius: 50},
-      "Sensor Name": {center: [170, -100], radius: 50},
+      "Device Name": {center: [220, 50], radius: 30},
+      "Mode Name": {center: [420, 90], radius: 30},
+      "Perceptron Model Name": {center: [270, 200], radius: 50},
+      "Sensor Name": {center: [130, -100], radius: 50},
       "User Analysis Name": {center: [200, 300], radius: 50},
       "User Condition": {center: [300, -300], radius: 120},
       "User Expertise": {center: [350, -30], radius: 50},
@@ -337,9 +337,9 @@ const labels = svg.append("g")
                   .attr("dy", d => Math.sqrt(d.size) * 1.5 + 10)
                   .style("font-size", d => {
                     // Set font sizes here as needed
-                    // Example:
                     if (d.type === "Activity Type Name") return "10px";
                     else if (d.type === "Activity Name") return "7px";
+                    else if (d.type === "Rule Name") return "2px";
                     else return "4px";
                   })
                   .style("font-family", d => {
@@ -431,11 +431,50 @@ const collisionForce = d3.forceCollide()
     .radius(function(d) {
         if (d.type === "Activity Name") {
             return 18; // Larger radius for "Activity Name" nodes
+        } else if(d.type == "Rule Name") {
+          return 12;
         } else {
             return 9; // Smaller radius for other types
         }
     })
     .strength(0.7); 
+
+  // Initialize quadtree for label collision detection
+const labelQuadtree = d3.quadtree()
+  .x(d => d.x)
+  .y(d => d.y)
+  .addAll(labels.nodes());
+
+// Function to detect and prevent label overlap
+function labelCollisionDetection(labels) {
+  labels.each(function(d) {
+    const label = this;
+    const bbox1 = label.getBBox();
+    const searchRadius = 2 * Math.max(bbox1.width, bbox1.height);
+
+    // Search nearby labels in the quadtree
+    labelQuadtree.visit(function(quad, x1, y1, x2, y2) {
+      if (quad.data && (quad.data !== d)) {
+        const bbox2 = quad.data.getBBox();
+        if (bboxOverlap(bbox1, bbox2)) {
+          const dx = (bbox2.x + bbox2.width / 2) - (bbox1.x + bbox1.width / 2);
+          const dy = (bbox2.y + bbox2.height / 2) - (bbox1.y + bbox1.height / 2);
+          const angle = Math.atan2(dy, dx);
+          const overlapDistance = Math.sqrt(dx * dx + dy * dy);
+          const moveX = Math.cos(angle) * overlapDistance;
+          const moveY = Math.sin(angle) * overlapDistance;
+          label.setAttribute("x", parseFloat(label.getAttribute("x")) - moveX);
+          label.setAttribute("y", parseFloat(label.getAttribute("y")) - moveY);
+        }
+      }
+      return x1 > bbox1.x + searchRadius || x2 < bbox1.x - searchRadius || y1 > bbox1.y + searchRadius || y2 < bbox1.y - searchRadius;
+    });
+    
+    // Add this label to the quadtree
+    labelQuadtree.add(d);
+  });
+}
+
 
 // Update the simulation
 const simulation = d3.forceSimulation(nodes)
@@ -458,7 +497,10 @@ function ticked() {
     });
 
   labels.attr("x", d => d.x)
-        .attr("y", d => d.y + 5);
+        .attr("y", d => d.y);
+
+  // prevent label overlap
+  labelCollisionDetection(labels);
 }
       // Function to handle mouse hover over nodes
 function mouseOver(event, d) {
@@ -567,37 +609,13 @@ svg.on("click", unclicked);
 // Add event listeners for mouseover and mouseout
 node.on("mouseover", mouseOver).on("mouseout", mouseOut);
 
-
-      // Function to detect and prevent label overlap
-      function labelCollisionDetection(labels) {
-        const labelNodes = labels.nodes();
-        for (let i = 0; i < labelNodes.length; i++) {
-          for (let j = i + 1; j < labelNodes.length; j++) {
-            const label1 = labelNodes[i];
-            const label2 = labelNodes[j];
-            const bbox1 = label1.getBBox();
-            const bbox2 = label2.getBBox();
-            if (bboxOverlap(bbox1, bbox2)) {
-              const dx = (bbox2.x + bbox2.width / 2) - (bbox1.x + bbox1.width / 2);
-              const dy = (bbox2.y + bbox2.height / 2) - (bbox1.y + bbox1.height / 2);
-              const angle = Math.atan2(dy, dx);
-              const overlapDistance = Math.sqrt(dx * dx + dy * dy);
-              const moveX = Math.cos(angle) * overlapDistance;
-              const moveY = Math.sin(angle) * overlapDistance;
-              label1.setAttribute("x", parseFloat(label1.getAttribute("x")) - moveX);
-              label1.setAttribute("y", parseFloat(label1.getAttribute("y")) - moveY);
-            }
-          }
-        }
-      }
-
-      // Function to check if two bounding boxes overlap
-      function bboxOverlap(bbox1, bbox2) {
-        return bbox1.x < bbox2.x + bbox2.width &&
-               bbox1.x + bbox1.width > bbox2.x &&
-               bbox1.y < bbox2.y + bbox2.height &&
-               bbox1.y + bbox1.height > bbox2.y;
-      }
+// Function to check if two bounding boxes overlap
+function bboxOverlap(bbox1, bbox2) {
+  return bbox1.x < bbox2.x + bbox2.width &&
+         bbox1.x + bbox1.width > bbox2.x &&
+         bbox1.y < bbox2.y + bbox2.height &&
+         bbox1.y + bbox1.height > bbox2.y;
+}
 
       // Define boundary coordinates
       const boundary = { xMin: 50, xMax: 1550, yMin: 50, yMax: 750 };
