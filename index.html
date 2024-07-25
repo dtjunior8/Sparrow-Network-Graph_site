@@ -174,28 +174,28 @@
     let clickedActive = false;
 
     const circleLayouts = {
-      "Activity Type Name": {center: [-700, -200], radius: 100},
-      "Activity Name": {center: [-400, -150], radius: 100},
-      "Excercise Name": {center: [200, 350], radius: 50},
-      "Drill Name": {center: [200, 180], radius: 100},
-      "Skill Name": {center: [-450, 300], radius: 275},
-      "Professional Name": {center: [500, -50], radius: 100},
-      "Equipment Name":{center: [-700, 0], radius: 100},
-      "Brand Name": {center: [450, 200], radius: 100},
-      "Rule Name": {center: [300, 0], radius: 100},
-      "Excercise Type Name": {center: [400, 350], radius: 40},
-      "Motion Name": {center: [250, 470], radius: 100},
+      "Activity Type Name": {center: [-400, -200], radius: 100},
+      "Activity Name": {center: [-150, -150], radius: 200},
+      "Excercise Name": {center: [700, 700], radius: 150},
+      "Drill Name": {center: [650, 350], radius: 250},
+      "Skill Name": {center: [-450, 400], radius: 275},
+      "Professional Name": {center: [1200, -200], radius: 300},
+      "Equipment Name":{center: [-600, 100], radius: 100},
+      "Brand Name": {center: [950, 200], radius: 300},
+      "Rule Name": {center: [650, -20], radius: 300},
+      "Excercise Type Name": {center: [1000, 450], radius: 100},
+      "Motion Name": {center: [950, 750], radius: 100},
       "Analysis Name": {center: [-100, 200], radius: 100},
-      "Methodology Name": {center: [-400, -370], radius: 100},
-      "Coaching Style Name": {center: [150, -130], radius: 20},
-      "Device Name": {center: [-30, 50], radius: 30},
-      "Mode Name": {center: [70, 90], radius: 30},
-      "Perceptron Model Name": {center: [-200, 50], radius: 50},
-      "Sensor Name": {center: [-110, -100], radius: 50},
-      "User Analysis Name": {center: [-100, 300], radius: 50},
-      "User Condition": {center: [0, -100], radius: 50},
-      "User Expertise": {center: [50, -30], radius: 50},
-      "User Input Name": {center: [150, -50], radius: 50}
+      "Methodology Name": {center: [-200, -400], radius: 100},
+      "Coaching Style Name": {center: [450, -130], radius: 20},
+      "Device Name": {center: [270, 50], radius: 30},
+      "Mode Name": {center: [470, 90], radius: 30},
+      "Perceptron Model Name": {center: [300, 200], radius: 50},
+      "Sensor Name": {center: [170, -100], radius: 50},
+      "User Analysis Name": {center: [200, 300], radius: 50},
+      "User Condition": {center: [300, -200], radius: 100},
+      "User Expertise": {center: [350, -30], radius: 50},
+      "User Input Name": {center: [450, -50], radius: 50}
 
 
     }
@@ -259,7 +259,7 @@ links.forEach(link => {
       // Create SVG container
       svg = d3.select("#graph-container")
               .append("svg")
-              .attr("viewBox", "0, 0, 800, 600") 
+              .attr("viewBox", "0, 0, 1200, 800") 
               .call(d3.zoom()
                 .scaleExtent([0.1, 10]) // Define the zoom scale extent
                 .on("zoom", function(event) {
@@ -412,7 +412,7 @@ function forceTowardsCircleCenter(circleLayouts) {
             const dx = layout.center[0] - d.x;
             const dy = layout.center[1] - d.y;
             const distance = Math.sqrt(dx * dx + dy * dy);
-            const targetRadius = layout.radius * 0.5;
+            const targetRadius = layout.radius;
 
             // Apply force only if the node is outside its target radius
             if (distance > targetRadius) {
@@ -432,7 +432,7 @@ const collisionForce = d3.forceCollide()
         if (d.type === "Activity Name") {
             return 20; // Larger radius for "Activity Name" nodes
         } else {
-            return 7; // Smaller radius for other types
+            return 9; // Smaller radius for other types
         }
     })
     .strength(0.7); 
@@ -600,7 +600,7 @@ node.on("mouseover", mouseOver).on("mouseout", mouseOut);
       }
 
       // Define boundary coordinates
-      const boundary = { xMin: 50, xMax: 750, yMin: 50, yMax: 550 };
+      const boundary = { xMin: 50, xMax: 1550, yMin: 50, yMax: 750 };
 
       // Create forceX and forceY to keep nodes within boundaries
       const forceX = d3.forceX().x(d => Math.max(boundary.xMin, Math.min(boundary.xMax, d.x)));
