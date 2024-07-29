@@ -37,7 +37,6 @@
       font-family: 'SFPro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
       /* Apply 'SFPro' to specific elements like node labels */
       text-anchor: middle;
-      dominant-baseline: hanging;
     }
   
     h1 {
@@ -175,32 +174,30 @@
 
     const circleLayouts = {
       "Activity Type Name": {center: [-770, -200], radius: 100},
-      "Activity Name": {center: [-250, -50], radius: 100},
+      "Activity Name": {center: [-250, -50], radius: 500},
       "Excercise Name": {center: [700, 700], radius: 150},
-      "Drill Name": {center: [650, 350], radius: 350},
-      "Skill Name": {center: [-200, 600], radius: 300},
-      "Professional Name": {center: [1200, -200], radius: 300},
-      "Equipment Name":{center: [-750, 100], radius: 150},
-      "Brand Name": {center: [950, 200], radius: 300},
-      "Rule Name": {center: [650, -20], radius: 300},
-      "Excercise Type Name": {center: [1000, 450], radius: 100},
-      "Motion Name": {center: [950, 750], radius: 100},
+      "Drill Name": {center: [650, 350], radius: 400},
+      "Skill Name": {center: [-200, 600], radius: 900},
+      "Professional Name": {center: [1200, -200], radius: 400},
+      "Equipment Name":{center: [-750, 100], radius: 500},
+      "Brand Name": {center: [1150, 200], radius: 300},
+      "Rule Name": {center: [800, -70], radius: 450},
+      "Excercise Type Name": {center: [1000, 450], radius: 200},
+      "Motion Name": {center: [950, 750], radius: 300},
       "Analysis Name": {center: [-100, 200], radius: 100},
       "Methodology Name": {center: [-200, -400], radius: 100},
       "Coaching Style Name": {center: [450, -130], radius: 20},
       "Device Name": {center: [220, 50], radius: 30},
       "Mode Name": {center: [420, 90], radius: 30},
       "Perceptron Model Name": {center: [270, 200], radius: 50},
-      "Sensor Name": {center: [130, -100], radius: 50},
+      "Sensor Name": {center: [150, -100], radius: 50},
       "User Analysis Name": {center: [200, 300], radius: 50},
-      "User Condition": {center: [300, -300], radius: 120},
-      "User Expertise": {center: [350, -30], radius: 50},
+      "User Condition": {center: [300, -300], radius: 240},
+      "User Expertise": {center: [300, -30], radius: 50},
       "User Input Name": {center: [450, -50], radius: 50}
 
 
     }
-
-
 
 
     function randomPositionInCircle(radius) {
@@ -230,23 +227,12 @@ d3.json("activities2.json").then(function(data) {
 
   // Calculate a random angle and radius within the circle layout
   const angle = Math.random() * 2 * Math.PI; // Random angle between 0 and 2π
-  const radius = Math.sqrt(Math.random()) * (layout.radius * 0.5); // Random radius within half the circle radius
+  const radius = Math.sqrt(Math.random()) * (layout.radius * 0.75); // Random radius within half the circle radius
   
   // Calculate initial x and y coordinates based on angle and radius
   d.x = layout.center[0] + radius * Math.cos(angle);
   d.y = layout.center[1] + radius * Math.sin(angle);
 
-  // Ensure nodes stay within the circleLayout boundaries
-  const dx = d.x - layout.center[0];
-  const dy = d.y - layout.center[1];
-  const distance = Math.sqrt(dx * dx + dy * dy);
-
-  if (distance > layout.radius) {
-    // If node is outside the circle, move it back inside
-    const angleInside = Math.atan2(dy, dx);
-    d.x = layout.center[0] + layout.radius * Math.cos(angleInside);
-    d.y = layout.center[1] + layout.radius * Math.sin(angleInside);
-  }
 });
 
 
@@ -276,10 +262,10 @@ links.forEach(link => {
                 "Excercise Name": "#0D99FF",     // Blue
                 "Drill Name": "#598BAF",         // Air Force
                 "Skill Name": "#9467bd",          // Purple
-                "Professional Name": "#AFF4C6", // Light Green
+                "Professional Name": "#75826b", // Dark Green
                 "Equipment Name": "#FF00A8", // Pink
-                "Brand Name": "#BDE3FF", // Lightish Blue
-                "Rule Name": "#FFC7C2", // Skin 
+                "Brand Name": "#b60379", // Fuschia?
+                "Rule Name": "#855390", // Purple 
                 "Excercise Type Name": "#9747FF", // Purple
                 "Motion Name": "#F64A8A", // French Rose
                 "Analysis Name": "#14AE5C", // Dark Green
@@ -414,12 +400,6 @@ function forceTowardsCircleCenter(circleLayouts) {
             const distance = Math.sqrt(dx * dx + dy * dy);
             const targetRadius = layout.radius;
 
-            // Apply force only if the node is outside its target radius
-            if (distance > targetRadius) {
-                const strength = 200; // Adjust the strength as needed
-                d.vx += (dx / distance) * strength * alpha;
-                d.vy += (dy / distance) * strength * alpha;
-            }
         });
     }
 
@@ -430,7 +410,7 @@ function forceTowardsCircleCenter(circleLayouts) {
 const collisionForce = d3.forceCollide()
     .radius(function(d) {
         if (d.type === "Activity Name") {
-            return 30; // Larger radius for "Activity Name" nodes
+            return 15; // Larger radius for "Activity Name" nodes
         } else if(d.type == "Rule Name") {
           return 12;
         } else if(d.type == "Skill Name") {
@@ -481,7 +461,7 @@ function labelCollisionDetection(labels) {
 // Update the simulation
 const simulation = d3.forceSimulation(nodes)
   .force('collide', collisionForce)
-  .force("towardsCenter", forceTowardsCircleCenter(circleLayouts))
+
   .on("tick", ticked);
 
 function ticked() {
@@ -620,7 +600,7 @@ function bboxOverlap(bbox1, bbox2) {
 }
 
       // Define boundary coordinates
-      const boundary = { xMin: 50, xMax: 1550, yMin: 50, yMax: 750 };
+      const boundary = { xMin: -1200, xMax: 1550, yMin: -1200, yMax: 1200 };
 
       // Create forceX and forceY to keep nodes within boundaries
       const forceX = d3.forceX().x(d => Math.max(boundary.xMin, Math.min(boundary.xMax, d.x)));
