@@ -177,7 +177,7 @@
       "Activity Name": {center: [-250, -50], radius: 500},
       "Excercise Name": {center: [700, 700], radius: 150},
       "Drill Name": {center: [650, 350], radius: 400},
-      "Skill Name": {center: [-200, 600], radius: 900},
+      "Skill Name": {center: [-200, 600], radius: 800},
       "Professional Name": {center: [1200, -200], radius: 400},
       "Equipment Name":{center: [-750, 100], radius: 500},
       "Brand Name": {center: [1150, 200], radius: 300},
@@ -410,13 +410,13 @@ function forceTowardsCircleCenter(circleLayouts) {
 const collisionForce = d3.forceCollide()
     .radius(function(d) {
         if (d.type === "Activity Name") {
-            return 15; // Larger radius for "Activity Name" nodes
+            return 12; // Larger radius for "Activity Name" nodes
         } else if(d.type == "Rule Name") {
-          return 12;
+          return 8;
         } else if(d.type == "Skill Name") {
-        return 12;
+        return 3;
         } else {
-            return 9; // Smaller radius for other types
+            return 7; // Smaller radius for other types
         }
     })
     .strength(0.7); 
